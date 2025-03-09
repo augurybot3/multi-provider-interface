@@ -1,0 +1,8 @@
+.audio
+.versions
+.vscode
+chat_log.txt
+venv
+.env
+utils
+table-of-contents.py
