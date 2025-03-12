@@ -165,7 +165,11 @@ class MultiProviderClient:
 
         self.models = {
             "OpenAI": {
+                "03-mini": "03-mini",
                 "gpt-4o": "gpt-4o",
+                "gpt-4.5-preview":"gpt-4.5-preview",
+                "gpt-4o-search-preview":"gpt-4o-search-preview",
+                "computer-use-preview-2025-03-11":"computer-use-preview-2025-03-11",
                 "gpt-4o-mini": "gpt-4o-mini"
             },
             "Anthropic": {
@@ -187,6 +191,7 @@ class StreamlitAIChat:
     def __init__(self):
         self.client = MultiProviderClient()
         self.init_session_state()
+
 
     def init_session_state(self):
         defaults = {
@@ -211,6 +216,37 @@ class StreamlitAIChat:
                 st.session_state[key] = value
 
         st.session_state.logs_dir.mkdir(exist_ok=True)
+
+    def model_conditions(self, selected_model):
+        cost = {'input' : str, 'output' : str}
+        image_ingestion = bool
+        if selected_model == 'gpt-4o-mini':
+            cost['input'] = '$0.15 / 1m tokens'
+            cost['output'] = '$0.60 / 1m tokens'
+            image_ingestion = True
+        elif selected_model == 'gpt-4o':
+            cost['input'] = '$2.50 / 1m tokens'
+            cost['output'] = '$10.00 / 1m tokens'
+            image_ingestion = True
+        elif selected_model == '03-mini':
+            cost['input'] = '$1.10 / 1m tokens'
+            cost['output'] = '$4.40 / 1m tokens'
+            image_ingestion = False
+        elif selected_model == 'gpt-4.5-preview-2025-02-27':
+            cost['input'] = '$75.00 / 1m tokens'
+            cost['output'] = '$150.00 / 1m tokens'
+            image_ingestion = True
+        elif selected_model == 'computer-use-preview-2025-03-11':
+            cost['input'] = '  $3.00 / 1m tokens'
+            cost['output'] = '$12.00 / 1m tokens'
+            image_ingestion = True
+        else:
+            cost['input'] = '$ NA'
+            cost['output'] = '$ NA'
+            image_ingestion = True
+        costs = {'input_cost': cost['input'], 'output_cost': cost['output']}
+        supports_images = image_ingestion
+        return costs, supports_images
 
     def save_uploaded_file(self, uploaded_file):
         if uploaded_file:
